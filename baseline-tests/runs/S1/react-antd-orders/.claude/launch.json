@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "orders-admin",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "D:\\project\\frontend-improve\\baseline-tests\\runs\\S1\\react-antd-orders",
+      "port": 5173
+    }
+  ]
+}

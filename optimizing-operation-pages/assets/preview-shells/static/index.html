@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UI 预览 · 方案对比</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; display: flex; flex-direction: column; height: 100vh; }
+      nav { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: #1e1e1e; }
+      nav button { border: none; cursor: pointer; border-radius: 999px; padding: 4px 14px; font-size: 13px; background: transparent; color: #eee; }
+      nav button.active { background: #fff; color: #111; }
+      nav .divider { width: 1px; align-self: stretch; background: rgba(255,255,255,.25); }
+      nav button.swatch { width: 16px; height: 16px; padding: 0; border-radius: 50%; border: 2px solid transparent; }
+      nav button.swatch.active { border-color: #fff; }
+      iframe { flex: 1; border: none; width: 100%; }
+      p.empty { padding: 24px; }
+    </style>
+  </head>
+  <body>
+    <nav id="tabs"></nav>
+    <iframe id="frame"></iframe>
+    <script src="./variants/manifest.js"></script>
+    <script>
+      const variants = window.PREVIEW_VARIANTS || []
+      const tabs = document.getElementById('tabs')
+      const frame = document.getElementById('frame')
+      const storage = {
+        get(key) { try { return localStorage.getItem(key) } catch { return null } },
+        set(key, value) { try { localStorage.setItem(key, value) } catch { /* file:// 等场景忽略 */ } }
+      }
+      if (!variants.length) {
+        document.body.innerHTML = '<p class="empty">还没有注册方案：请在 variants/manifest.js 中填写 window.PREVIEW_VARIANTS。</p>'
+      } else {
+        const current = () => decodeURIComponent(location.hash.replace(/^#\/?/, '')) || variants[0].id
+        // 每个方案独立记忆主题色/字体选择；无声明或存储值失效时回退到第一项（默认项）。
+        const picked = (variant, kind, list) => {
+          const id = storage.get('op-preview:' + variant.id + ':' + kind)
+          return list.find((o) => o.id === id) || list[0] || null
+        }
+        // 方案页是同源 iframe，把选中项的 CSS 变量写到其文档根上。
+        function applyVars(variant) {
+          const doc = frame.contentDocument
+          if (!doc || !doc.documentElement) return
+          const options = [picked(variant, 'theme', variant.themes || []), picked(variant, 'font', variant.fonts || [])]
+          options.forEach((opt) => {
+            if (!opt) return
+            Object.entries(opt.vars || {}).forEach(([k, v]) => doc.documentElement.style.setProperty(k, v))
+          })
+        }
+        function render() {
+          const activeId = current()
+          const active = variants.find((v) => v.id === activeId) || variants[0]
+          const themes = active.themes || []
+          const fonts = active.fonts || []
+          const activeTheme = picked(active, 'theme', themes)
+          const activeFont = picked(active, 'font', fonts)
+          tabs.innerHTML = ''
+          const addButton = (label, cls, onclick, title) => {
+            const b = document.createElement('button')
+            b.textContent = label
+            b.className = cls
+            if (title) b.title = title
+            b.onclick = onclick
+            tabs.appendChild(b)
+            return b
+          }
+          const addDivider = () => {
+            const s = document.createElement('span')
+            s.className = 'divider'
+            tabs.appendChild(s)
+          }
+          variants.forEach((v) => {
+            addButton(v.title, v.id === active.id ? 'active' : '', () => (location.hash = '#/' + v.id))
+          })
+          if (themes.length) addDivider()
+          themes.forEach((t) => {
+            const b = addButton('', 'swatch' + (activeTheme && activeTheme.id === t.id ? ' active' : ''), () => {
+              storage.set('op-preview:' + active.id + ':theme', t.id)
+              render()
+              applyVars(active)
+            }, t.title)
+            b.style.background = t.vars['--op-primary']
+          })
+          if (fonts.length) addDivider()
+          fonts.forEach((f) => {
+            addButton(f.title, activeFont && activeFont.id === f.id ? 'active' : '', () => {
+              storage.set('op-preview:' + active.id + ':font', f.id)
+              render()
+              applyVars(active)
+            }, f.title)
+          })
+          const src = './variants/' + active.id + '/index.html'
+          if (frame.getAttribute('data-src') !== src) {
+            frame.setAttribute('data-src', src)
+            frame.onload = () => applyVars(active)
+            frame.src = src
+          } else {
+            applyVars(active)
+          }
+        }
+        window.addEventListener('hashchange', render)
+        render()
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,5 @@
+interface:
+  display_name: 操作页优化
+  short_description: 为现有操作页生成五套隔离的可运行风格预览，选定后落地
+policy:
+  allow_implicit_invocation: true

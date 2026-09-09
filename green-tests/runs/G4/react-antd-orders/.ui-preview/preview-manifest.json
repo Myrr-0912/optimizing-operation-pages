@@ -1,0 +1,24 @@
+{
+  "stack": "react",
+  "page": "src/pages/OrdersPage.jsx",
+  "variants": [
+    {
+      "id": "enterprise-dense",
+      "title": "A 企业高密度",
+      "stylePack": "enterprise-dense",
+      "summary": "单平面紧凑布局：高频筛选常驻+更多筛选折叠、20 条/页高密度表格、行内操作收敛为 详情/催发货/更多，危险操作进菜单并带后果确认。"
+    },
+    {
+      "id": "modern-clean",
+      "title": "B 现代清爽",
+      "stylePack": "modern-clean",
+      "summary": "卡片分区布局：摘要统计卡+状态页签+聚合搜索框，8 列宽行距表格（订单号/交易号、客户/手机号合并双行），大圆角留白。"
+    },
+    {
+      "id": "command-center",
+      "title": "C 暗色驾驶舱",
+      "stylePack": "command-center",
+      "summary": "暗色分栏工作台：可点击 KPI 卡即筛选，高风险行红色标记，等宽数字，选中后浮出批量操作条，详情走深色抽屉。"
+    }
+  ]
+}

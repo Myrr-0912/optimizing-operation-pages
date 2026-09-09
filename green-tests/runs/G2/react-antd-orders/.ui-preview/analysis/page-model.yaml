@@ -1,0 +1,85 @@
+pageType: list
+
+tasks:
+  - goal: 按条件定位订单，查看关键信息并催发货/跟进
+    frequency: high
+  - goal: 批量关闭异常/超时订单
+    frequency: low
+    danger: true
+  - goal: 导出订单、同步 ERP
+    frequency: low
+
+regions:
+  - id: header
+    role: 页面标题 + 全局低频操作（导出、同步 ERP）
+  - id: filter
+    role: 查询与筛选
+    fields:
+      primary: [keyword(订单号/外部交易号/客户/手机号 聚合或常驻), status, createdAt 区间]
+      secondary(折叠): [channel, payType, riskLevel]
+    rules:
+      - 已生效条件以可移除标签显示
+      - 提供重置
+  - id: toolbar
+    role: 批量操作 + 结果计数
+    rules:
+      - 批量操作仅在有选中时可用/出现
+  - id: table
+    role: 数据主体
+    columns:
+      default: [orderNo(+outTradeNo 次行), customer(name+phone), amount, status, channel/payType, riskLevel, createdAt, actions]
+      metadata(进详情): [id, syncFlag, discount, freight, skuCount, remark, updatedAt]
+    rules:
+      - 金额右对齐、千分位、等宽数字
+      - 状态彩色标签；风险等级可视化
+      - 关键列固定，避免 2400px 横滚
+  - id: detail
+    role: 订单详情（抽屉/弹层，替代 alert）
+  - id: pagination
+    role: 分页 + 总数
+
+interactions:
+  - id: search-filter
+    trigger: 输入/选择即生效或显式查询
+    rules: 保留筛选上下文；可单独移除条件
+  - id: view-detail
+    trigger: 行内"详情"或点击订单号
+    rules: 抽屉展示全部字段（含元数据），可复制
+  - id: urge-ship
+    trigger: 行内高频操作
+    rules: 仅对已支付/已发货前状态有意义；成功给轻反馈
+  - id: batch-close
+    trigger: 选中行后出现/可用
+    confirm: 必须，说明"关闭后不可恢复、影响 N 笔订单"
+    feedback: 成功说明结果数量
+  - id: delete
+    trigger: 行内"更多"菜单
+    confirm: 必须，说明不可恢复
+  - id: blacklist
+    trigger: 行内"更多"菜单
+    confirm: 必须，说明对客户的影响
+  - id: export
+    trigger: 全局操作
+    feedback: 说明任务已提交与查看位置（下载中心）
+  - id: sync-erp
+    trigger: 全局操作
+    feedback: 与语义一致（同步完成，而非"已刷新"）
+
+states:
+  - normal
+  - loading
+  - empty      # 区分"无数据"与"筛选过窄"，给清空筛选动作
+  - error      # 置顶提示 + 重试
+  - success    # 操作成功反馈（轻提示 + 结果说明）
+
+entities:
+  order:
+    status: [WAIT_PAY 待支付, PAID 已支付, SHIPPED 已发货, FINISHED 已完成, CLOSED 已关闭, REFUNDING 退款中]
+    channel: [APP, H5, WXMP, PC]
+    payType: [ALIPAY, WECHAT, BALANCE, UNIONPAY]
+    riskLevel: [HIGH, MID, LOW]
+
+constraints:
+  - 预览仅用模拟数据（.ui-preview/mock/），不调用任何真实接口
+  - 落地时保留 fetchOrders/STATUS_TEXT 协议与全部业务行为
+  - 组件库沿用 antd 5（ConfigProvider token 做风格差异）

@@ -1,0 +1,14 @@
+{
+  "detectedAt": "2026-07-13T04:01:14.222Z",
+  "projectRoot": "D:/project/frontend-improve/green-tests/runs/G2/react-antd-orders",
+  "framework": "react",
+  "buildTool": "vite",
+  "componentLibs": [
+    "antd"
+  ],
+  "styling": [],
+  "language": "javascript",
+  "packageManager": "none",
+  "workspace": false,
+  "previewStackSuggestion": "react"
+}

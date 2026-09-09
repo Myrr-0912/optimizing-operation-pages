@@ -1,0 +1,38 @@
+{
+  "stack": "react",
+  "page": "src/pages/OrdersPage.jsx",
+  "variants": [
+    {
+      "id": "enterprise-dense",
+      "title": "A 企业高密度",
+      "stylePack": "enterprise-dense",
+      "density": "紧凑",
+      "layout": "单平面（页头/筛选条/工具栏/高密度表格）",
+      "summary": "整天处理订单的运营处理台：单行筛选+更多筛选折叠、20 行/页紧凑表格、行内操作收敛为 详情/催发货/更多"
+    },
+    {
+      "id": "modern-clean",
+      "title": "B 现代清爽",
+      "stylePack": "modern-clean",
+      "density": "中等",
+      "layout": "卡片分区（统计卡/状态页签/聚合搜索/数据卡）",
+      "summary": "可读性优先：4 张摘要统计卡、状态 Tabs、一个聚合搜索框、订单号+交易号双行合并列、大留白圆角卡片"
+    },
+    {
+      "id": "command-center",
+      "title": "C 暗色驾驶舱",
+      "stylePack": "command-center",
+      "density": "紧凑-中等",
+      "layout": "分栏工作台（可点击 KPI 行 + 全宽表格 + 浮出批量操作条）",
+      "summary": "值守/风控视角：暗色主题、KPI 卡点击即筛选、高风险行左侧色条+异常置顶、等宽数字、浮出式批量操作条"
+    }
+  ],
+  "statesCoverage": [
+    "normal",
+    "loading（左下角演示状态：加载中）",
+    "empty（演示状态：空数据）",
+    "error（演示状态：接口错误）",
+    "success（执行催发货/批量关闭/导出等操作后的反馈）"
+  ],
+  "mock": "mock/orders.js（与 src/mock/orders.js 同构，含 scenario 扩展）"
+}

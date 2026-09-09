@@ -1,0 +1,75 @@
+pageType: form
+page: src/pages/SettlementForm.vue
+tasks:
+  - goal: 完整准确地录入一家商户的结算配置（29 字段）并提交
+    frequency: medium
+  - goal: 修改已有商户的个别结算参数（费率/周期/账户）
+    frequency: medium
+  - goal: 清空重填
+    frequency: low
+    danger: true
+
+regions:
+  - id: header
+    role: 页头（标题、商户标识、主操作）
+  - id: group-basic
+    role: 商户基本信息
+    fields: [merchantNo, merchantName, shortName, merchantType, creditCode, industry]
+  - id: group-legal
+    role: 法人与联系人
+    fields: [legalName, legalIdNo, legalPhone, contactEmail, servicePhone]
+  - id: group-address
+    role: 经营地址
+    fields: [region, address]
+  - id: group-account
+    role: 结算账户（高风险）
+    fields: [accountType, accountName, bankCardNo, bankName, branchName, bankCode]
+  - id: group-rules
+    role: 结算规则（高风险）
+    fields: [settleCycle, feeRate, minSettleAmount, autoWithdraw, withdrawPhone, deposit]
+  - id: group-invoice
+    role: 发票信息
+    fields: [invoiceType, invoiceTitle, taxNo]
+  - id: group-remark
+    role: 备注
+    fields: [remark]
+  - id: footer-actions
+    role: 提交 / 清空（危险操作需隔离并确认）
+
+interactions:
+  - id: submit
+    trigger: 点击"提交"
+    rules: 先整表校验（必填 merchantName、bankCardNo；feeRate 数字），错误就近展示并定位到第一个错误分组；通过后提交模拟接口，展示加载与成功反馈
+  - id: reset
+    trigger: 点击"清空"
+    confirm: 必须，说明"将清空全部字段且不可恢复"
+  - id: invoice-progressive
+    trigger: invoiceType = NONE
+    rules: 收起发票抬头、纳税人识别号（值保留）
+  - id: withdraw-progressive
+    trigger: autoWithdraw = false
+    rules: 收起提现预留手机号（值保留）
+  - id: tax-autofill
+    trigger: 填写 creditCode 且 taxNo 为空
+    rules: 提供一键带入（纳税人识别号 = 统一社会信用代码）
+
+states:
+  - normal      # 载入既有商户配置，可编辑
+  - loading     # 拉取配置中：骨架/占位
+  - empty       # 新建商户：全空表单 + 引导
+  - error       # 拉取失败：错误提示 + 重试
+  - success     # 提交成功：明确结果与下一步
+
+entities:
+  settlement:
+    enums:
+      merchantType: [COMPANY, INDIVIDUAL, MICRO]
+      industry: [FOOD, CLOTHES, DIGITAL, LOCAL]
+      accountType: [CORPORATE, PERSONAL]
+      settleCycle: [T1, T7, MONTH]
+      invoiceType: [SPECIAL, NORMAL, NONE]
+
+constraints:
+  - 预览仅用模拟数据与模拟接口，禁止生产写接口
+  - 落地时保留全部字段键名、枚举值与提交约束
+  - 校验禁止 window.alert，一律就近提示

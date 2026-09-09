@@ -1,0 +1,91 @@
+pageType: list
+tasks:
+  - goal: 按单号/客户/状态/时间快速定位订单并执行处理动作（催发货、关闭、导出）
+    frequency: high
+  - goal: 识别并优先处理高风险 / 退款中订单
+    frequency: high
+  - goal: 批量关闭超时未支付订单
+    frequency: low
+    danger: true
+
+regions:
+  - id: header
+    role: 页面标题 + 全局操作（导出全部、同步ERP）
+  - id: filter
+    role: 查询与筛选
+    fields:
+      - { key: keyword, label: 关键词, note: 聚合匹配 订单号/外部交易号/客户姓名/手机号 }
+      - { key: status, label: 状态, options: [WAIT_PAY, PAID, SHIPPED, FINISHED, CLOSED, REFUNDING] }
+      - { key: dateRange, label: 创建时间区间 }
+      - { key: channel, label: 渠道, options: [APP, H5, WXMP, PC], frequency: low }
+      - { key: payType, label: 支付方式, options: [ALIPAY, WECHAT, BALANCE, UNIONPAY], frequency: low }
+      - { key: riskLevel, label: 风险等级, options: [HIGH, MID, LOW], frequency: low }
+    rules:
+      - 高频筛选常驻，低频（渠道/支付方式/风险）折叠进"更多筛选"
+      - 已生效条件以可移除标签展示
+  - id: toolbar
+    role: 批量操作 + 结果计数
+    rules:
+      - 批量操作仅在选中后可用，未选中时禁用或隐藏
+  - id: table
+    role: 数据主体
+    columns:
+      required: [orderNo, customer(name+phone), amount, status, riskLevel, createdAt, actions]
+      secondary: [outTradeNo(并入订单号列), channel, payType, skuCount, remark(图标提示)]
+      metadata: [id(UUID), syncFlag, updatedAt]   # 默认收进详情
+    rules:
+      - 金额右对齐、千分位、等宽数字；状态彩色标签；高风险行视觉突出
+      - 行内操作 ≤3（详情、催发货）+ "更多"下拉（复制/拉黑/删除）
+  - id: detail
+    role: 订单详情（抽屉/侧栏），承载全部字段含技术元数据
+  - id: pagination
+    role: 分页，保留筛选与选中上下文
+
+interactions:
+  - id: search
+    trigger: 关键词输入 / 筛选变更
+    rule: 即时生效；已选条件标签可单独移除；"清空筛选"一键复位
+  - id: view-detail
+    trigger: 点击订单号或"详情"
+    rule: 抽屉/侧栏展示全部字段（含 UUID、同步标记、更新时间），不打断列表上下文
+  - id: remind-ship
+    trigger: 行内按钮
+    rule: 仅"已支付"状态可用，成功给轻提示
+  - id: copy
+    trigger: 行内"更多"菜单
+    rule: 真实写入剪贴板（订单号），成功提示
+  - id: delete
+    trigger: 行内"更多"菜单（危险项，红色，与普通项分隔）
+    confirm: 必须，说明"删除后不可恢复，客户侧订单记录同时消失"
+  - id: blacklist
+    trigger: 行内"更多"菜单（危险项）
+    confirm: 必须，说明"该客户将无法下单"
+  - id: batch-close
+    trigger: 选中行后出现/可用
+    confirm: 必须，说明将关闭 N 笔订单、待支付订单库存将释放
+    feedback: 成功后提示结果数量并清空选中
+  - id: export
+    trigger: 页头按钮
+    feedback: 提交异步任务，提示到下载中心查看（不用 alert）
+  - id: sync-erp
+    trigger: 页头按钮
+    feedback: 触发后真实重新加载数据并提示
+
+states:            # 每套预览必须全部可触达（顶部"演示状态"切换器 + 交互触发）
+  - normal
+  - loading        # 骨架/加载态
+  - empty          # 带"清空筛选"动作
+  - error          # 错误提示 + 重试
+  - success        # 操作成功反馈（批量关闭/导出/催发货）
+
+entities:
+  order:
+    statusEnum: { WAIT_PAY: 待支付, PAID: 已支付, SHIPPED: 已发货, FINISHED: 已完成, CLOSED: 已关闭, REFUNDING: 退款中 }
+    riskEnum: { HIGH: 高, MID: 中, LOW: 低 }
+    payEnum: { ALIPAY: 支付宝, WECHAT: 微信, BALANCE: 余额, UNIONPAY: 银联 }
+    channelEnum: { APP: APP, H5: H5, WXMP: 小程序, PC: PC }
+
+constraints:
+  - 预览一律使用模拟数据（.ui-preview/mock），不接任何真实接口
+  - 落地时保留 fetchOrders 协议与前端过滤行为，不改动 mock/orders.js 数据层
+  - 禁止 window.alert / window.confirm，统一 AntD Modal / message / notification

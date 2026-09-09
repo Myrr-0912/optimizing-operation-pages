@@ -1,0 +1,24 @@
+{
+  "stack": "vue",
+  "page": "src/pages/SettlementForm.vue",
+  "variants": [
+    {
+      "id": "enterprise-dense",
+      "title": "A 高密度速录（单平面两列）",
+      "stylePack": "enterprise-dense",
+      "summary": "紧凑单平面布局：7 个业务分组两列排布 + 左侧锚点导航 + 顶部固定操作条，一屏尽量多字段，适合熟手快速录入与修改。"
+    },
+    {
+      "id": "modern-clean",
+      "title": "B 分步向导（卡片分区）",
+      "stylePack": "modern-clean",
+      "summary": "宽松卡片式四步向导：商户与法人 → 结算账户 → 规则与发票 → 核对提交；逐步校验、渐进披露、提交前强制核对关键结算信息。"
+    },
+    {
+      "id": "command-center",
+      "title": "C 配置驾驶舱（分栏工作台·暗色）",
+      "stylePack": "command-center",
+      "summary": "三栏工作台：左侧分组导航（完成度/错误数）、中间分组表单、右侧实时摘要（完成度 KPI、必填缺失、关键结算参数与到账测算）。"
+    }
+  ]
+}

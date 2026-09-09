@@ -1,0 +1,9 @@
+{
+  "index.html": "sha256:79cb6b31a5885737573754f51c4785791751a5340002b6e5c148023526c410bf",
+  "package.json": "sha256:1360bdb872e221f75c7f2c908086faf43aee467a627351afb4acfd312e45b92f",
+  "vite.config.js": "sha256:7bfcfa51ce8d23e1a3d0890bced3abc68c4d155bf9189c441d6b54d299cc11c9",
+  "src/App.jsx": "sha256:c989945e144a093102989c1b463d5d8aea3b93de2725ec6b8ca5dd959a093eba",
+  "src/main.jsx": "sha256:5d05e3cc8cd69d97077d3147333efb9bf655b7a9a2d0fba713129bb59c9ae448",
+  "src/pages/OrdersPage.jsx": "sha256:e73f5ef0a8cf1f924a09337a0dcc9ccf3dbff490e53c85cb22d2ee7b5192c020",
+  "src/mock/orders.js": "sha256:8fc45a844fcd96efb506313298217d867ffd1e52a22854a85d29040a7bd2e5bd"
+}

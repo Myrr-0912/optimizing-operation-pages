@@ -1,0 +1,8 @@
+{
+  "index.html": "sha256:f39a6edef702e98986a56da18b5110e5beab7d118d6cc5336502ba7da95b2a21",
+  "package.json": "sha256:e4d56737156a6748318a3c90b3a043c033ee7b2c395da2fdb03722f5429d2406",
+  "vite.config.js": "sha256:4d9a2137df6fa88a79040dcafd4f314d3802b4093f1f40181855405e7ecd26c3",
+  "src/App.vue": "sha256:360711de5ae298eceeb5738f8d80a2a0e9166d32a1007d11b5bf81dfb9080349",
+  "src/main.js": "sha256:cede3688de1d1750224a66aaa52757ea65fd62e34a4f3126f9ff01f34021ee94",
+  "src/pages/SettlementForm.vue": "sha256:8dc638f4ad3737aa08c3e14dbb515c1645a01e82599c1867b7029de40b1ca7b2"
+}

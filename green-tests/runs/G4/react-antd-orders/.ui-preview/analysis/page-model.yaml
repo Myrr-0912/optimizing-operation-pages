@@ -1,0 +1,82 @@
+pageType: list
+
+tasks:
+  - goal: 按单号/客户/状态等条件定位订单并处理（催发货/关闭/删除/拉黑）
+    frequency: high
+  - goal: 查看订单完整信息（含技术字段）
+    frequency: high
+  - goal: 批量关闭超时未支付等订单
+    frequency: low
+  - goal: 导出订单、触发 ERP 同步
+    frequency: low
+
+regions:
+  - id: header
+    role: 页面标题与全局低频操作（导出全部、同步 ERP）
+  - id: filter
+    role: 查询与筛选
+    fields: [keyword(订单号/外部交易号/客户/手机号聚合或独立), status, channel, payType, riskLevel, dateRange]
+    rules:
+      - 高频条件常驻，低频条件折叠进“更多筛选”
+      - 已生效条件可见、可单独移除，提供重置
+  - id: toolbar
+    role: 批量操作与结果计数
+    rules:
+      - 批量关闭仅在有选中时可用，显示已选数量
+  - id: table
+    role: 数据主体
+    columns: [orderNo, customer(姓名+脱敏手机号), amount(右对齐千分位), status(彩色标签), riskLevel(彩色标签), channel/payType, skuCount, createdAt, actions]
+    metadata-collapsed: [id(UUID), outTradeNo, syncFlag, discount, freight, remark, updatedAt] # 收进详情抽屉
+    rules:
+      - 行内操作 ≤3 + “更多”下拉；危险操作收进“更多”并二次确认
+  - id: detail
+    role: 订单详情（抽屉，替代 alert JSON）
+
+interactions:
+  - id: filter-apply
+    trigger: 输入/选择即生效（另提供刷新重新拉取）
+    keeps-context: 分页与选中不因筛选外操作丢失
+  - id: view-detail
+    trigger: 行内“详情”或点订单号
+    result: 抽屉展示分组信息，含 UUID、同步标记、完整手机号等元数据
+  - id: urge-ship
+    trigger: 行内按钮
+    result: 成功轻提示，注明订单号
+  - id: batch-close
+    trigger: 选中行后可用
+    confirm: 必须；说明将关闭 N 笔订单、买家无法继续支付、不可撤销
+  - id: delete-row
+    trigger: 行内“更多”菜单（danger）
+    confirm: 必须；说明永久删除不可恢复
+  - id: blacklist
+    trigger: 行内“更多”菜单（danger）
+    confirm: 必须；说明该客户后续下单将被拦截
+  - id: export-all
+    trigger: 页头按钮
+    result: 成功提示 + 指引到下载中心
+  - id: sync-erp
+    trigger: 页头按钮
+    result: 成功提示，文案与动作一致
+
+states:
+  - normal
+  - loading   # 骨架/脉冲骨架，禁用批量操作
+  - empty     # 区分“无数据”与“筛选过窄”，提供清空筛选
+  - error     # 错误横幅/结果页 + 重试
+  - success   # 操作后轻提示，说明结果与下一步
+
+entities:
+  order:
+    id: UUID（元数据）
+    orderNo: SO2026xxxxxx
+    outTradeNo: 可为空
+    status: [WAIT_PAY, PAID, SHIPPED, FINISHED, CLOSED, REFUNDING]
+    channel: [APP, H5, WXMP, PC]
+    payType: [ALIPAY, WECHAT, BALANCE, UNIONPAY]
+    riskLevel: [HIGH, MID, LOW]
+    money: [amount, discount, freight]
+
+constraints:
+  - 预览一律使用模拟数据（.ui-preview/mock/orders.js），不调用任何真实接口
+  - 保留原页面全部业务能力：9 项筛选、5 个行内操作、批量关闭、导出、同步 ERP
+  - 手机号列表内脱敏（138****5678），详情内完整展示；按手机号筛选仍用原值
