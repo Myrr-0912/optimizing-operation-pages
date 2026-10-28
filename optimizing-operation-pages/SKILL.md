@@ -30,12 +30,12 @@ description: Use when the user wants to improve or restyle an EXISTING admin/ope
 
 1. **定位页面**：用户未给出页面位置时，询问目标页面的访问网址；已给出源文件路径则直接使用。URL 无法映射到源码时停止并请用户提供文件路径，不得猜测目标页面。
 2. **探测项目**（只读）：`node <本Skill目录>/scripts/detect-project.mjs <项目根>`，产出 `.ui-preview/analysis/project-profile.json` 并建立隔离基线快照。
-3. **分析业务任务**：按 references/page-analysis.md 审计页面，输出页面设计模型到 `.ui-preview/analysis/page-model.yaml`（`regions`、`interactions`、`states` 三段必填，其余按需）。
-4. **全量 5 个风格包**：references/styles/ 的 5 个风格包每包一套预览，不做取舍。每套必须落实其风格包声明的信息密度与布局形态；任意两套趋同或只换主色 = 不合格，重做趋同的那套。
+3. **分析业务任务**：按 references/page-analysis.md 审计页面，输出页面设计模型到 `.ui-preview/analysis/page-model.yaml`（`pageType`、`regions`、`interactions`、`states` 四段必填，其余按需）。
+4. **按页面类型选 5 个风格包**：references/styles/ 共 6 个风格包，按 page-model.yaml 的 `pageType` 查 references/preview-contract.md 的「风格包选取」表，去掉 1 个，其余 5 个每包一套预览。页面实际情况与表冲突时可以改去掉别的，但必须在 `preview-manifest.json` 的 `excluded` 字段和方案说明里写明理由。每套必须落实其风格包声明的信息密度与布局形态；任意两套趋同或只换主色 = 不合格，重做趋同的那套。
 5. **初始化预览**：`node <本Skill目录>/scripts/initialize-preview.mjs <项目根> --stack <react|vue|static>`（取 project-profile.json 的 previewStackSuggestion）。产物是**单个**预览应用：一份 `package.json`、一份依赖、五个方案路由加统一切换入口。
 6. **实现五套预览**：使用与项目相同的技术栈和组件库、同一份模拟数据；每套覆盖正常、加载、空、错误、成功五种状态；每套按其风格包声明主题色候选与字体候选（`themes`/`fonts`），样式经 CSS 变量消费，供切换器实时切换。输出契约见 references/preview-contract.md。
 7. **校验隔离**：`node <本Skill目录>/scripts/validate-isolation.mjs <项目根>` 必须通过；未通过先还原违规改动。
-8. **停止并等待选择**：呈现每套方案的适合人群、优点、代价，并告知每套方案内可在预览右下角切换主题色与字体；明确请用户选择方案（可附主题色与字体，未附则取默认）。**这里是硬停止点。**
+8. **停止并等待选择**：呈现每套方案的适合人群、优点、代价，并告知每套方案内可在预览右下角切换主题色与字体；明确请用户选择方案（可附主题色与字体，未附则取默认）。同时说明本次去掉了哪个风格包及原因，用户可要求换回。**这里是硬停止点。**
 9. **落地**（仅在明确选择后）：先再跑一次 validate-isolation 确认预览阶段项目仍干净；然后小步修改真实页面，保留接口、权限、校验和业务行为；运行项目自己的格式化、类型检查、测试、构建；对照预览解释无法一致的部分。
 
 ## 模糊反馈对照表

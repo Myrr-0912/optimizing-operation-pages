@@ -34,7 +34,7 @@ const manifestPath = join(previewDir, 'preview-manifest.json')
 if (!existsSync(manifestPath)) {
   writeFileSync(
     manifestPath,
-    JSON.stringify({ stack, page: null, variants: [], note: '由模型填写：page 为目标页面，variants 为五套方案的 id/title/stylePack/说明' }, null, 2)
+    JSON.stringify({ stack, page: null, variants: [], excluded: null, note: '由模型填写：page 为目标页面，variants 为五套方案的 id/title/stylePack/说明，excluded 为按 pageType 去掉的风格包及理由' }, null, 2)
   )
 }
 
@@ -52,7 +52,7 @@ if (existsSync(gitignorePath)) {
 
 console.log(`预览骨架已就绪（stack=${stack}）：${previewDir}`)
 console.log('下一步：')
-console.log('  1. 在 .ui-preview/mock/ 写模拟数据，在 .ui-preview/variants/ 实现五套方案（5 个风格包各一套）并注册到 variants 入口。')
+console.log('  1. 在 .ui-preview/mock/ 写模拟数据，在 .ui-preview/variants/ 实现五套方案（按 pageType 从 6 个风格包中选 5 个，见 preview-contract.md）并注册到 variants 入口。')
 if (stack !== 'static') {
   console.log('  2. 依赖只能装在 .ui-preview/ 内：cd .ui-preview && npm install（需要组件库时在此处追加后再装）。')
   console.log('  3. cd .ui-preview && npm run dev 启动预览。')

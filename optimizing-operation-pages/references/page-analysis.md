@@ -11,10 +11,10 @@
 
 ## 页面设计模型（.ui-preview/analysis/page-model.yaml）
 
-定位是**建议结构的分析文档**，不是强制 schema：按页面实际情况增删字段。只有三段必填——它们是五套预览和最终落地的共同依据：
+定位是**建议结构的分析文档**，不是强制 schema：按页面实际情况增删字段。只有四段必填——`pageType` 决定去掉哪个风格包，其余三段是五套预览和最终落地的共同依据：
 
 ```yaml
-pageType: list | form | detail | master-detail | workflow | dashboard
+pageType: list | form | detail | master-detail | workflow | dashboard   # 必填：决定风格包选取
 tasks:                # 建议
   - goal: 找到并处理异常订单
     frequency: high

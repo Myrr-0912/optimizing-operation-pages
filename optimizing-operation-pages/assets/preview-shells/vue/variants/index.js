@@ -1,4 +1,4 @@
-// 在这里注册五套方案（5 个风格包各一套）。每套方案一个目录，themes/fonts 取自对应风格包 md 的候选表（第一项为默认），
+// 在这里注册五套方案（按 pageType 从 6 个风格包中选 5 个）。每套方案一个目录，themes/fonts 取自对应风格包 md 的候选表（第一项为默认），
 // 方案样式须消费 var(--op-primary) / var(--op-font-family) 等变量。例如：
 // import EnterpriseDense from './enterprise-dense/Page.vue'
 // export const variants = [
